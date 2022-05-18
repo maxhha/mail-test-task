@@ -1,2 +1,2 @@
 # release: ./release.sh
-web: bin/start-nginx bundle exec gunicorn -c gunicorn.conf-prod.py mailtesttask.wsgi
+web: bin/start-nginx gunicorn -c gunicorn.conf-prod.py mailtesttask.wsgi
