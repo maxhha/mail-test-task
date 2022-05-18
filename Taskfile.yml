@@ -1,0 +1,15 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Show all tasks
+    cmds:
+      - task --list-all
+  deploy:
+    desc: Deploy app to heroku
+    cmds:
+      - git push heroku master
+  dev:
+    desc: Start dev server
+    cmds:
+      - python manage.py runserver
