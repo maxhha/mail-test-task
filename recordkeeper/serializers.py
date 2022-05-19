@@ -13,4 +13,4 @@ class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Record
         fields = ["id", "descripton", "deadline_at",
-                  "created_at", "book", "done"]
+                  "created_at", "book", "done", "image"]

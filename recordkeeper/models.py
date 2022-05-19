@@ -16,7 +16,7 @@ class ShortLink(models.Model):
     """Model for references to record books made by short ids"""
     id = ShortUUIDField(length=7, primary_key=True, editable=False)
     book = models.ForeignKey(
-        'Book', on_delete=models.CASCADE, null=False)
+        'Book', on_delete=models.CASCADE, null=False, editable=False)
 
 
 class Record(models.Model):
@@ -27,5 +27,6 @@ class Record(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True, editable=False, null=False)
     book = models.ForeignKey(
-        'Book', on_delete=models.CASCADE, null=False)
+        'Book', on_delete=models.CASCADE, null=False, editable=False)
     done = models.BooleanField(default=False, null=False)
+    image = models.ImageField(default=None, null=True)

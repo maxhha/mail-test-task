@@ -1,4 +1,5 @@
-from django.http import JsonResponse
+import os
+from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
@@ -6,6 +7,7 @@ from rest_framework import status, authentication, permissions, viewsets
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.pagination import CursorPagination
+from mailtesttask.settings import MEDIA_ROOT, FALLBACK_MEDIA_PATH
 
 from recordkeeper.models import Book, ShortLink, Record
 from recordkeeper.permissions import IsBookUserPermission
@@ -86,3 +88,32 @@ class RecordViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+@login_required
+def media_access(request, path):
+    access_granted = False
+
+    if request.user.is_staff:
+        access_granted = True
+
+    if not access_granted:
+        try:
+            record = Record.objects.get(image=path)
+            record.book.users.get(pk=request.user.id)
+            access_granted = True
+        except Record.DoesNotExist:
+            pass
+        except User.DoesNotExist:
+            pass
+
+    if access_granted:
+        try:
+            f = open(os.path.join(MEDIA_ROOT, path), "rb")
+        except FileNotFoundError:
+            f = open(FALLBACK_MEDIA_PATH, "rb")
+
+            response = FileResponse(f)
+        return response
+
+    return HttpResponseForbidden('Not authorized to access this media.')

@@ -36,8 +36,7 @@ http {
 		server_name _;
 		keepalive_timeout 5;
 
-		location /admin {
-			# Uncomment this if statement to force SSL/redirect http -> https
+		location ~ ^/(admin|api|uploaded)/ {
 			if ($http_x_forwarded_proto != "https") {
 			  return 301 https://$host$request_uri;
 			}
@@ -52,6 +51,11 @@ http {
             root /app/build/frontend;
             index index.html;
             autoindex on;
+
+			if ($http_x_forwarded_proto != "https") {
+			  return 301 https://$host$request_uri;
+			}
+
             set $fallback_file /index.html;
             if ($http_accept !~ text/html) {
                 set $fallback_file /null;

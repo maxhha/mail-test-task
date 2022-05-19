@@ -84,11 +84,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.CursorPagination',
     'PAGE_SIZE': 10,
 }
 
 WSGI_APPLICATION = 'mailtesttask.wsgi.application'
 
+APPEND_SLASH = False
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -140,10 +142,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'build/backend/static')
 STATIC_URL = '/static/'
-# MEDIA_URL = '/uploaded/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'build/backend/uploaded')
+MEDIA_URL = '/api/uploaded/'
+FALLBACK_MEDIA_PATH = os.path.join(STATIC_ROOT, 'fallback-image.png')
 
 # Extra places for collectstatic to find static files.
-# STATICFILES_DIRS = ()
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'staticfiles'),
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
