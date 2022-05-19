@@ -88,7 +88,7 @@ local_settings.py
 .env
 db.sqlite3
 
-# On release static files is copy of frontend/build
+# Frontend static files served by nginx 
 staticfiles
 
 # dependencies
