@@ -30,6 +30,7 @@ DEBUG = bool(os.getenv('DEBUG'))
 
 ALLOWED_HOSTS = [host for host in str(os.getenv('ALLOWED_HOSTS')).split(',')]
 
+LOGIN_URL = str(os.getenv('LOGIN_URL'))
 
 # Application definition
 
