@@ -49,7 +49,7 @@ http {
 		}
 
         location / {
-            root /app/build/frontend_static;
+            root /app/build/frontend;
             index index.html;
             autoindex on;
             set $fallback_file /index.html;
@@ -64,7 +64,7 @@ http {
 
 		location ~ ^/static/(.*)$ {
 			root /app/build;
-			try_files /frontend_static/$1 /backend_static/$1 =404;
+			try_files /frontend/static/$1 /backend/static/$1 =404;
 		}
 	}
 }
