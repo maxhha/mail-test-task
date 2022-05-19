@@ -11,3 +11,4 @@
 
 - [Django](https://www.djangoproject.com/)
 - [Django Rest Frameworkn](https://www.django-rest-framework.org/)
+- [nginx](https://nginx.org/) - отдает статику и перенаправляет запросы в django
