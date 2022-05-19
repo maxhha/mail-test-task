@@ -6,14 +6,26 @@ from shortuuid.django_fields import ShortUUIDField
 User = get_user_model()
 
 
-class RecordBook(models.Model):
+class Book(models.Model):
     """Model for record books"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     users = models.ManyToManyField(User)
 
 
-class RecordBookShortLink(models.Model):
+class ShortLink(models.Model):
     """Model for references to record books made by short ids"""
     id = ShortUUIDField(length=7, primary_key=True, editable=False)
     book = models.ForeignKey(
-        'RecordBook', on_delete=models.CASCADE, null=False)
+        'Book', on_delete=models.CASCADE, null=False)
+
+
+class Record(models.Model):
+    """Model for records"""
+    id = models.AutoField(primary_key=True, editable=False)
+    descripton = models.TextField(null=False)
+    deadline_at = models.DateTimeField(null=False)
+    created_at = models.DateTimeField(
+        auto_now_add=True, editable=False, null=False)
+    book = models.ForeignKey(
+        'Book', on_delete=models.CASCADE, null=False)
+    done = models.BooleanField(default=False, null=False)

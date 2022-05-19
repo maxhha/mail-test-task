@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from recordkeeper.models import RecordBook, RecordBookShortLink
+from recordkeeper.models import Book, ShortLink, Record
 
-admin.site.register(RecordBook)
-admin.site.register(RecordBookShortLink)
+admin.site.register(Book)
+admin.site.register(ShortLink)
+admin.site.register(Record)

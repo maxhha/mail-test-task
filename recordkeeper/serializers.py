@@ -1,9 +1,16 @@
 from rest_framework import serializers
 
-from recordkeeper.models import RecordBook
+from recordkeeper.models import Book, Record
 
 
-class RecordBookSerializer(serializers.ModelSerializer):
+class BookSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RecordBook
+        model = Book
         fields = ["id"]
+
+
+class RecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Record
+        fields = ["id", "descripton", "deadline_at",
+                  "created_at", "book", "done"]
