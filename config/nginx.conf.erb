@@ -62,9 +62,9 @@ http {
             try_files $uri $fallback_file;
         }
 
-		location /static/ {
-			alias /;
-			try_files /app/build/static$uri /app/staticfiles$uri =404;
+		location ~ ^/static/(.*)$ {
+			root /app;
+			try_files /build/static/$1 /app/staticfiles/$1 =404;
 		}
 	}
 }
