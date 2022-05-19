@@ -79,6 +79,12 @@ TEMPLATES = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
 WSGI_APPLICATION = 'mailtesttask.wsgi.application'
 
 

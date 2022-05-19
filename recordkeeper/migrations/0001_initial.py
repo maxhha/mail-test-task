@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RecordBookShortLink',
             fields=[
-                ('id', shortuuid.django_fields.ShortUUIDField(alphabet=None, editable=False, length=6, max_length=16, prefix='', primary_key=True, serialize=False)),
+                ('id', shortuuid.django_fields.ShortUUIDField(alphabet=None, editable=False, length=7, max_length=7, prefix='', primary_key=True, serialize=False)),
                 ('book', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='recordkeeper.recordbook')),
             ],
         ),

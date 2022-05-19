@@ -1,9 +1,12 @@
-# from django.urls import include, path
-# from rest_framework import routers
+from django.urls import path
+from rest_framework import routers
 
-# router = routers.DefaultRouter()
+from recordkeeper.views import shortlink_share
+
+router = routers.DefaultRouter()
 
 urlpatterns = [
-    # path('api/', include(router.urls)),
-    # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path("shortlinks/<str:pk>/share", shortlink_share, name="shortlink-share"),
 ]
+
+urlpatterns += router.urls
