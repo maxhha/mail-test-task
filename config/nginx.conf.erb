@@ -61,9 +61,5 @@ http {
             }
             try_files $uri $fallback_file;
         }
-
-		location /static/ {
-			alias /app/staticfiles/;
-		}
 	}
 }

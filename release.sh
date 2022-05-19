@@ -2,5 +2,4 @@
 
 set -euo pipefail
 
-npm install
-npm run build
+mv staticfiles/* build/static
