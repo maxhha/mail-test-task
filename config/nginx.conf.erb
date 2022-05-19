@@ -63,8 +63,8 @@ http {
         }
 
 		location ~ ^/static/(.*)$ {
-			root /app;
-			try_files /build/static/$1 /app/staticfiles/$1 =404;
+			root /app/build;
+			try_files /frontend_static/$1 /backend_static/$1 =404;
 		}
 	}
 }
