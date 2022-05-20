@@ -12,4 +12,4 @@ tasks:
   dev:
     desc: Start dev server
     cmds:
-      - python manage.py runserver
+      - gunicorn mailtesttask.asgi:application -k uvicorn.workers.UvicornWorker

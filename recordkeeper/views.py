@@ -1,10 +1,11 @@
 import os
-from django.http import FileResponse, HttpResponseForbidden, JsonResponse, StreamingHttpResponse
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
-from django.core.files.storage import default_storage
 from rest_framework import status, authentication, permissions, viewsets
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import CursorPagination
 from mailtesttask.settings import MEDIA_ROOT, FALLBACK_MEDIA_PATH
@@ -12,8 +13,8 @@ from mailtesttask.settings import MEDIA_ROOT, FALLBACK_MEDIA_PATH
 from recordkeeper.models import Book, ShortLink, Record
 from recordkeeper.permissions import IsBookUserPermission
 from recordkeeper.serializers import BookSerializer, RecordSerializer
-# from recordkeeper.signals import BOOK_UPDATED_SIGNAL, EVENT_BOOK_NEW_RECORD, EVENT_BOOK_RECORD_UPDATED
 from recordkeeper.utils import random_string
+
 
 User = get_user_model()
 
@@ -91,15 +92,33 @@ class RecordViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        serializer.save()
-        # TODO: Add push event to pubsub
+        record = serializer.save()
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'book_{record.book.id}',
+            {
+                "type": "record_created",
+                "data": serializer.data,
+                "record": record,
+            }
+        )
 
     def perform_update(self, serializer):
-        serializer.save()
-        # TODO: Add push event to pubsub
+        record = serializer.save()
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'book_{record.book.id}',
+            {
+                "type": "record_updated",
+                "data": serializer.data,
+                "record": record,
+            }
+        )
 
 
-@login_required
+@ login_required
 def media_access(request, path):
     access_granted = False
 
