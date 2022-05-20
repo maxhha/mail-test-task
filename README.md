@@ -11,4 +11,5 @@
 
 - [Django](https://www.djangoproject.com/)
 - [Django Rest Frameworkn](https://www.django-rest-framework.org/)
-- [nginx](https://nginx.org/) - отдает статику и перенаправляет запросы в django
+- [nginx](https://nginx.org/) отдает статику и перенаправляет запросы в django
+- [Django Channels](https://channels.readthedocs.io/en/stable/) использовался для отправления событий об изменениях в записной книге через SSE
