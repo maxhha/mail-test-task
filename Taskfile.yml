@@ -9,7 +9,12 @@ tasks:
     desc: Deploy app to heroku
     cmds:
       - git push heroku master
-  dev:
+  devback:
     desc: Start dev server
     cmds:
       - gunicorn mailtesttask.asgi:application -k uvicorn.workers.UvicornWorker
+  devfront:
+    desc: Start dev server for front
+    cmds:
+      - task devback &
+      - npm start dev

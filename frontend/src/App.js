@@ -1,23 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Route, Switch } from "react-router-dom";
+import { SharePage } from "components/pages/SharePage";
+import { BookPage } from "components/pages/BookPage";
+import { NoMatchPage } from "components/pages/NoMatchPage";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Switch>
+        <Route path="/share/:id">
+          <SharePage />
+        </Route>
+        <Route path="/books/:id">
+          <BookPage />
+        </Route>
+        <Route path="*">
+          <NoMatchPage />
+        </Route>
+      </Switch>
     </div>
   );
 }

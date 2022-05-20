@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+from corsheaders.defaults import default_headers
 
 load_dotenv()
 
@@ -58,12 +59,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ALLOW_HEADERS = default_headers + (
+    'Access-Control-Allow-Headers',
+    'Access-Control-Allow-Credentials',
+    'Access-Control-Allow-Origin',
+)
+CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
 
-CORS_ORIGIN_WHITELIST = tuple([host for host in str(
-    os.getenv('CORS_ORIGIN_WHITELIST')).split(',')])
+CORS_ORIGIN_WHITELIST = [host for host in str(
+    os.getenv('CORS_ORIGIN_WHITELIST')).split(',')]
 
 ROOT_URLCONF = 'mailtesttask.urls'
+CSRF_TRUSTED_ORIGINS = [host for host in str(
+    os.getenv('CSRF_TRUSTED_ORIGINS')).split(',')]
 
 TEMPLATES = [
     {
