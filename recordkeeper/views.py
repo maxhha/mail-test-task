@@ -1,5 +1,5 @@
 import os
-from django.http import FileResponse, HttpResponseForbidden, JsonResponse
+from django.http import FileResponse, HttpResponseForbidden, JsonResponse, StreamingHttpResponse
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
@@ -12,6 +12,7 @@ from mailtesttask.settings import MEDIA_ROOT, FALLBACK_MEDIA_PATH
 from recordkeeper.models import Book, ShortLink, Record
 from recordkeeper.permissions import IsBookUserPermission
 from recordkeeper.serializers import BookSerializer, RecordSerializer
+# from recordkeeper.signals import BOOK_UPDATED_SIGNAL, EVENT_BOOK_NEW_RECORD, EVENT_BOOK_RECORD_UPDATED
 from recordkeeper.utils import random_string
 
 User = get_user_model()
@@ -88,6 +89,14 @@ class RecordViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save()
+        # TODO: Add push event to pubsub
+
+    def perform_update(self, serializer):
+        serializer.save()
+        # TODO: Add push event to pubsub
 
 
 @login_required

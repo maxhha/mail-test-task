@@ -42,6 +42,7 @@ http {
 			}
 
 			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header X-Forwarded-Proto $scheme;
 			proxy_set_header Host $http_host;
 			proxy_redirect off;
 			proxy_pass http://app_server;
@@ -70,5 +71,10 @@ http {
 			root /app/build;
 			try_files /frontend/static/$1 /backend/static/$1 =404;
 		}
+	}
+
+	map $http_upgrade $connection_upgrade {
+		default upgrade;
+		'' close;
 	}
 }
