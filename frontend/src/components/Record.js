@@ -9,6 +9,8 @@ import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 
 import styled from "@emotion/styled";
+import { useContext, useState } from "react";
+import { BookStorageContext } from "contexts/BookStorage";
 
 const RecordCard = styled(Card)`
   width: 100%;
@@ -19,6 +21,16 @@ const RecordCard = styled(Card)`
 
 // @ts-ignore
 export function Record({ record }) {
+  const { markDone, unmarkDone } = useContext(BookStorageContext);
+  const [disabled, setDisabled] = useState(false);
+
+  const handleMark = (mark) => () => {
+    setDisabled(true);
+    mark(record.id).then(() => {
+      setDisabled(false);
+    });
+  };
+
   const opacity = record.done ? 0.4 : 1;
 
   return (
@@ -41,11 +53,23 @@ export function Record({ record }) {
       </CardContent>
       <CardActions sx={{ justifyContent: "space-between" }}>
         {record.done ? (
-          <Button size="small" color="error" variant="outlined">
+          <Button
+            size="small"
+            color="error"
+            variant="outlined"
+            disabled={disabled}
+            onClick={handleMark(unmarkDone)}
+          >
             Вернуть
           </Button>
         ) : (
-          <Button size="small" color="success" variant="contained">
+          <Button
+            size="small"
+            color="success"
+            variant="contained"
+            disabled={disabled}
+            onClick={handleMark(markDone)}
+          >
             Завершено
           </Button>
         )}

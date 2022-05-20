@@ -112,6 +112,7 @@ class RecordViewSet(viewsets.ModelViewSet):
             f'book_{record.book.id}',
             {
                 "type": "record_updated",
+                "sessionid": self.request.session.session_key,
                 "data": serializer.data,
                 "record": record,
             }

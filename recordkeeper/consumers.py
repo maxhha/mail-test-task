@@ -58,6 +58,8 @@ class BookEventsConsumer(AsyncHttpConsumer):
         await self.send_body(payload.encode('utf-8'), more_body=True)
 
     async def record_updated(self, event):
+        if event['sessiodid'] == self.scope['sessionid']:
+            return
         payload = f'event: record_updated\ndata: {json.dumps(event["data"])}\n\n'
         await self.send_body(payload.encode('utf-8'), more_body=True)
 

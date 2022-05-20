@@ -10,15 +10,13 @@ import {
   BookStorageContext,
   BookStorageContextProvider,
 } from "contexts/BookStorage";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { CreateRecord } from "components/CreateRecord";
 
-// @ts-ignore
 function BookPageInner() {
   const { loading, records, loadMore, hasMore } =
     useContext(BookStorageContext);
-  const [state, setState] = useState({});
 
   const createRecordDisabled = loading;
   const copyLinkDisabled = loading;

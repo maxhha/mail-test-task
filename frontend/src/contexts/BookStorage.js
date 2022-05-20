@@ -26,8 +26,8 @@ import { APIContext } from "./api";
  * @property {boolean} hasMore
  * @property {(record: FormData) => Promise<void>} create
  * @property {() => void} loadMore
- * @property {(recordId: string) => void} markDone
- * @property {(recordId: string) => void} unmarkDone
+ * @property {(recordId: string) => Promise<void>} markDone
+ * @property {(recordId: string) => Promise<void>} unmarkDone
  */
 /** @type {any} */
 const noop = () => {};
@@ -49,6 +49,12 @@ export const BookStorageContext = React.createContext(EMPTY_STORAGE);
 
 const Provider = BookStorageContext.Provider;
 
+function updateRecordDone(records, recordId, done) {
+  return records.map((record) =>
+    record.id === recordId ? { ...record, done } : record
+  );
+}
+
 export function BookStorageContextProvider({ value: { bookId }, children }) {
   const [value, setValue] = useState(EMPTY_STORAGE);
   const loading = useRef(false);
@@ -57,6 +63,37 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
   const create = useCallback(
     async (record) => {
       await api.postForm(`books/${bookId}/records/`, record);
+    },
+    [bookId]
+  );
+
+  const updateDone = useCallback(
+    async (recordId, done) => {
+      await api
+        .patch(`books/${bookId}/records/${recordId}/`, { done })
+        .then(() => {
+          setValue((value) => ({
+            ...value,
+            records: updateRecordDone(value.records, recordId, done),
+          }));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    [bookId]
+  );
+
+  const markDone = useCallback(
+    (recordId) => {
+      return updateDone(recordId, true);
+    },
+    [bookId]
+  );
+
+  const unmarkDone = useCallback(
+    async (recordId) => {
+      return updateDone(recordId, false);
     },
     [bookId]
   );
@@ -109,8 +146,8 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
           hasMore: next !== null,
           create,
           loadMore: next ? () => load(next) : noop,
-          markDone: noop,
-          unmarkDone: noop,
+          markDone,
+          unmarkDone,
         });
       })
       .catch((error) => {
