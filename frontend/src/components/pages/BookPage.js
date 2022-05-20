@@ -13,6 +13,7 @@ import {
 import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { CreateRecord } from "components/CreateRecord";
+import { CreateBook } from "components/CreateBook";
 
 function BookPageInner() {
   const { loading, records, loadMore, hasMore } =
@@ -30,9 +31,7 @@ function BookPageInner() {
           <Button variant="outlined" disabled={copyLinkDisabled}>
             Скопировать ссылку на книгу
           </Button>
-          <Button variant="outlined" color="secondary">
-            Создать новую книгу
-          </Button>
+          <CreateBook />
         </Stack>
       </Box>
       <Box mt={4}>
