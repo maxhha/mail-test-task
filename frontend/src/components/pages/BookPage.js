@@ -1,5 +1,4 @@
 // @ts-ignore
-import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -11,22 +10,25 @@ import {
   BookStorageContext,
   BookStorageContextProvider,
 } from "contexts/BookStorage";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
+import { CreateRecord } from "components/CreateRecord";
 
 // @ts-ignore
 function BookPageInner() {
-  const { loading, records } = useContext(BookStorageContext);
+  const { loading, records, loadMore, hasMore } =
+    useContext(BookStorageContext);
+  const [state, setState] = useState({});
+
   const createRecordDisabled = loading;
   const copyLinkDisabled = loading;
   const loadMoreDisabled = loading;
+
   return (
     <Container>
       <Box>
         <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
-          <Button variant="contained" disabled={createRecordDisabled}>
-            Добавить запись
-          </Button>
+          <CreateRecord disabled={createRecordDisabled} />
           <Button variant="outlined" disabled={copyLinkDisabled}>
             Скопировать ссылку на книгу
           </Button>
@@ -38,17 +40,23 @@ function BookPageInner() {
       <Box mt={4}>
         <Grid container spacing={3}>
           {records.map((record) => (
-            <Grid item>
+            <Grid item xs={12} sm={6} md={4} key={record.id}>
               <Record record={record} />
             </Grid>
           ))}
         </Grid>
       </Box>
-      <Box mt={4}>
-        <Button variant="outlined" disabled={loadMoreDisabled}>
-          Показать больше
-        </Button>
-      </Box>
+      {hasMore && (
+        <Box mt={4} mb={10}>
+          <Button
+            variant="outlined"
+            disabled={loadMoreDisabled}
+            onClick={loadMore}
+          >
+            Показать больше
+          </Button>
+        </Box>
+      )}
     </Container>
   );
 }

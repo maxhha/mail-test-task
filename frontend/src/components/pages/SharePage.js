@@ -5,7 +5,7 @@ import { useParams, useHistory } from "react-router-dom";
 export function SharePage() {
   // @ts-ignore
   const { id } = useParams();
-  const { axios } = useContext(APIContext);
+  const { api } = useContext(APIContext);
   const history = useHistory();
   const [state, setState] = useState({
     error: null,
@@ -18,7 +18,7 @@ export function SharePage() {
     }
     loading.current = true;
 
-    axios.post(`/shortlinks/${id}/share`).then(
+    api.post(`/shortlinks/${id}/share`).then(
       ({ data }) => {
         history.replace(`/books/${data.id}`);
       },

@@ -1,4 +1,3 @@
-import "./App.css";
 import { Route, Switch } from "react-router-dom";
 import { SharePage } from "components/pages/SharePage";
 import { BookPage } from "components/pages/BookPage";

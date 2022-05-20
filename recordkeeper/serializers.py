@@ -10,6 +10,8 @@ class BookSerializer(serializers.ModelSerializer):
 
 
 class RecordSerializer(serializers.ModelSerializer):
+    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
+
     class Meta:
         model = Record
         fields = ["id", "descripton", "deadline_at",

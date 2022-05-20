@@ -13,13 +13,14 @@ from channels.routing import URLRouter, ProtocolTypeRouter
 from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
 from django.urls import re_path
+from mailtesttask.middlewares import CorsMiddleware
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mailtesttask.settings')
 asgi_app = get_asgi_application()
 
 from recordkeeper import sse_urls  # noqa
 
-sse_app = AuthMiddlewareStack(URLRouter(sse_urls.urlpatterns))
+sse_app = CorsMiddleware(AuthMiddlewareStack(URLRouter(sse_urls.urlpatterns)))
 
 application = ProtocolTypeRouter({
     'http': URLRouter([
