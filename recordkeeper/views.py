@@ -107,13 +107,13 @@ def media_access(request, path):
         except User.DoesNotExist:
             pass
 
-    if access_granted:
-        try:
-            f = open(os.path.join(MEDIA_ROOT, path), "rb")
-        except FileNotFoundError:
-            f = open(FALLBACK_MEDIA_PATH, "rb")
+    if not access_granted:
+        return HttpResponseForbidden('Not authorized to access this media.')
 
-        response = FileResponse(f)
-        return response
+    try:
+        f = open(os.path.join(MEDIA_ROOT, path), "rb")
+    except FileNotFoundError:
+        f = open(FALLBACK_MEDIA_PATH, "rb")
 
-    return HttpResponseForbidden('Not authorized to access this media.')
+    response = FileResponse(f)
+    return response
