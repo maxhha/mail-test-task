@@ -113,7 +113,7 @@ def media_access(request, path):
         except FileNotFoundError:
             f = open(FALLBACK_MEDIA_PATH, "rb")
 
-            response = FileResponse(f)
+        response = FileResponse(f)
         return response
 
     return HttpResponseForbidden('Not authorized to access this media.')

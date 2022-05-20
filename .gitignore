@@ -88,9 +88,6 @@ local_settings.py
 .env
 db.sqlite3
 
-# Frontend static files served by nginx 
-staticfiles
-
 # dependencies
 /node_modules
 /.pnp
