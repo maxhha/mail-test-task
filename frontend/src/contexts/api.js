@@ -1,7 +1,9 @@
 import axios from "axios";
 import React from "react";
 
-export const APIContext = React.createContext({ axios });
+/** @type {import("react").Context<{ axios: import("axios").AxiosInstance }>|undefined} */
+// @ts-ignore
+export const APIContext = React.createContext();
 
 export function createAPIContextValue() {
   return {

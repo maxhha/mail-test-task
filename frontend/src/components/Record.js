@@ -1,0 +1,53 @@
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Typography from "@mui/material/Typography";
+import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
+import Chip from "@mui/material/Chip";
+import Box from "@mui/material/Box";
+
+// @ts-ignore
+export function Record({ record }) {
+  const opacity = record.done ? 0.4 : 1;
+
+  return (
+    <Card sx={{ w: 345 }}>
+      {record.image && (
+        <CardMedia
+          sx={{ opacity }}
+          component="img"
+          height="140"
+          image={record.image}
+        />
+      )}
+      <CardContent sx={{ opacity }}>
+        <Typography>{record.descripton}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {new Date(record.created_at).toLocaleString()}
+        </Typography>
+        <Box mt={1}></Box>
+      </CardContent>
+      <CardActions sx={{ justifyContent: "space-between" }}>
+        {record.done ? (
+          <Button size="small" color="error" variant="outlined">
+            Вернуть
+          </Button>
+        ) : (
+          <Button size="small" color="success" variant="contained">
+            Завершено
+          </Button>
+        )}
+
+        <Chip
+          icon={<LocalFireDepartmentIcon />}
+          label={new Date(record.deadline_at).toLocaleString()}
+          color={record.done ? "default" : "error"}
+          variant="outlined"
+          sx={{ marginLeft: 2, opacity }}
+        />
+      </CardActions>
+    </Card>
+  );
+}
