@@ -12,12 +12,19 @@ import {
 } from "contexts/BookStorage";
 import { useContext } from "react";
 import { useParams } from "react-router-dom";
-import { CreateRecord } from "components/CreateRecord";
-import { CreateBook } from "components/CreateBook";
+import { CreateRecordButton } from "components/CreateRecordButton";
+import { CreateBookButton } from "components/CreateBookButton";
+import { CreateShortLinkButton } from "components/CreateShortLinkButton";
 
 function BookPageInner() {
-  const { loading, records, loadMore, hasMore } =
-    useContext(BookStorageContext);
+  const {
+    loading,
+    records,
+    loadMore,
+    hasMore,
+    create,
+    book: { id: bookId },
+  } = useContext(BookStorageContext);
 
   const createRecordDisabled = loading;
   const copyLinkDisabled = loading;
@@ -27,11 +34,9 @@ function BookPageInner() {
     <Container>
       <Box>
         <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
-          <CreateRecord disabled={createRecordDisabled} />
-          <Button variant="outlined" disabled={copyLinkDisabled}>
-            Скопировать ссылку на книгу
-          </Button>
-          <CreateBook />
+          <CreateRecordButton disabled={createRecordDisabled} create={create} />
+          <CreateShortLinkButton disabled={copyLinkDisabled} bookId={bookId} />
+          <CreateBookButton />
         </Stack>
       </Box>
       <Box mt={4}>

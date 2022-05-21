@@ -5,7 +5,7 @@ import { APIContext } from "contexts/api";
 import { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-export function CreateBook() {
+export function CreateBookButton() {
   const { api } = useContext(APIContext);
   const [state, setState] = useState({
     snackbarOpen: false,

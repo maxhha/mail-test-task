@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from shortuuid.django_fields import ShortUUIDField
 
@@ -16,6 +17,9 @@ class ShortLink(models.Model):
     id = ShortUUIDField(length=7, primary_key=True, editable=False)
     book = models.ForeignKey(
         'Book', on_delete=models.CASCADE, null=False, editable=False)
+
+    def get_absolute_url(self):
+        return f'{settings.PUBLIC_URL}/share/{self.id}'
 
 
 class Record(models.Model):

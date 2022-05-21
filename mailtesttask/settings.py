@@ -59,6 +59,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+PUBLIC_URL = str(os.getenv("PUBLIC_URL"))
+
 CORS_ALLOW_HEADERS = default_headers + (
     'Access-Control-Allow-Headers',
     'Access-Control-Allow-Credentials',

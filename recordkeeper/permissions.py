@@ -20,12 +20,16 @@ def is_user_has_permission_over_book(book_pk, user_pk):
     return True
 
 
-class IsBookUserPermission(permissions.BasePermission):
+class IsBookUserPermission(permissions.IsAuthenticated):
     """
     Checks if user is listed in book users
     """
 
     def has_permission(self, request, view):
+        if not super(permissions.IsAuthenticated, self).has_permission(request, view):
+            return False
+
+        print(request.resolver_match.kwargs)
         book_pk = request.resolver_match.kwargs['book_pk']
         user_pk = request.user.id
 

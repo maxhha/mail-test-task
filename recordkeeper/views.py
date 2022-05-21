@@ -1,11 +1,12 @@
 import os
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.db import IntegrityError
 from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
 from rest_framework import status, authentication, permissions, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.pagination import CursorPagination
 from mailtesttask.settings import MEDIA_ROOT, FALLBACK_MEDIA_PATH
@@ -14,6 +15,9 @@ from recordkeeper.models import Book, ShortLink, Record
 from recordkeeper.permissions import IsBookUserPermission
 from recordkeeper.serializers import BookSerializer, RecordSerializer
 from recordkeeper.utils import random_string
+from django.db import transaction
+
+CREATE_TRIES_LIMIT = 10
 
 
 User = get_user_model()
@@ -32,15 +36,38 @@ def shortlink_share(request, pk):
     response_status = status.HTTP_200_OK
 
     if not request.user.is_authenticated:
-        username = f'guest-{random_string(15)}'
-        user = User.objects.create(username=username)
+        for _ in range(CREATE_TRIES_LIMIT):
+            username = f'guest-{random_string(15)}'
+            try:
+                user = User.objects.create(username=username)
+                break
+            except IntegrityError as e:
+                if not 'duplicate key value violates unique constraint "auth_user_username_key"' in str(e):
+                    raise e
+        else:
+            return Response(data='Username conflicts', status=status.HTTP_409_CONFLICT)
+
         login(request, user)
         response_status = status.HTTP_201_CREATED
 
-    short_link.book.users.add(request.user)
+    with transaction.atomic():
+        short_link.book.users.add(request.user)
+        short_link.delete()
 
     serializer = BookSerializer(short_link.book)
     return JsonResponse(serializer.data, safe=False, status=response_status)
+
+
+@api_view(['POST'])
+@permission_classes([IsBookUserPermission])
+def book_share(request, book_pk):
+    """
+    Creates shortlink to a book
+    """
+    book = Book.objects.get(pk=book_pk)
+    shortlink = ShortLink.objects.create(book=book)
+
+    return JsonResponse({"link": shortlink.get_absolute_url()}, safe=False, status=status.HTTP_201_CREATED)
 
 
 class BookViewSet(viewsets.ViewSet):
@@ -69,7 +96,7 @@ class RecordPagination(CursorPagination):
 class RecordViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[0-9]+'
     authentication_classes = [authentication.SessionAuthentication]
-    permission_classes = [permissions.IsAuthenticated, IsBookUserPermission]
+    permission_classes = [IsBookUserPermission]
     pagination_class = RecordPagination
     serializer_class = RecordSerializer
 
@@ -119,7 +146,7 @@ class RecordViewSet(viewsets.ModelViewSet):
         )
 
 
-@ login_required
+@login_required
 def media_access(request, path):
     access_granted = False
 

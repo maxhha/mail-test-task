@@ -1,8 +1,6 @@
-// @ts-ignore
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
-import { BookStorageContext } from "contexts/BookStorage";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import TextField from "@mui/material/TextField";
@@ -11,8 +9,7 @@ import Grid from "@mui/material/Grid";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
-export function CreateRecord({ disabled }) {
-  const { create } = useContext(BookStorageContext);
+export function CreateRecordButton({ disabled, create }) {
   const [state, setState] = useState({
     createDialogOpen: false,
     snackbarOpen: false,
@@ -119,7 +116,7 @@ export function CreateRecord({ disabled }) {
       <Snackbar
         open={state.snackbarOpen}
         autoHideDuration={6000}
-        onClose={() => setState({ ...state, snackbarOpen: true })}
+        onClose={() => setState({ ...state, snackbarOpen: false })}
       >
         <Alert
           onClose={() => setState({ ...state, snackbarOpen: false })}
