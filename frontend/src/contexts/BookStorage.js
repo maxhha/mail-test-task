@@ -162,10 +162,7 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
         return;
       }
 
-      if (error.response?.status === 404) {
-        history.replace("/");
-      }
-
+      history.replace("/");
       onError(error);
     });
 
