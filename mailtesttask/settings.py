@@ -62,6 +62,7 @@ MIDDLEWARE = [
 ]
 
 PUBLIC_URL = str(os.getenv("PUBLIC_URL"))
+HTTPS_CURSOR = bool(os.getenv("HTTPS_CURSOR"))
 
 CORS_ALLOW_HEADERS = default_headers + (
     'Access-Control-Allow-Headers',

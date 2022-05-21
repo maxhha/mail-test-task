@@ -94,6 +94,14 @@ class BookViewSet(viewsets.ViewSet):
 class RecordPagination(CursorPagination):
     ordering = "-created_at"
 
+    def encode_cursor(self, cursor):
+        link = super(CursorPagination, self).encode_cursor(cursor)
+
+        if settings.HTTPS_CURSOR:
+            return link.replace("http://", "https://")
+        else:
+            return link
+
 
 class RecordViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[0-9]+'
