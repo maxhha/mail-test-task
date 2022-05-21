@@ -2,6 +2,7 @@ import os
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db import IntegrityError
+from django.conf import settings
 from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
@@ -52,7 +53,8 @@ def shortlink_share(request, pk):
 
     with transaction.atomic():
         short_link.book.users.add(request.user)
-        short_link.delete()
+        if settings.PERMOMENT_SHORT_LINKS:
+            short_link.delete()
 
     serializer = BookSerializer(short_link.book)
     return JsonResponse(serializer.data, safe=False, status=response_status)

@@ -33,6 +33,8 @@ ALLOWED_HOSTS = [host for host in str(os.getenv('ALLOWED_HOSTS')).split(',')]
 
 LOGIN_URL = str(os.getenv('LOGIN_URL'))
 
+PERMOMENT_SHORT_LINKS = bool(os.getenv('PERMOMENT_SHORT_LINKS'))
+
 # Application definition
 
 INSTALLED_APPS = [
