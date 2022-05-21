@@ -1,3 +1,6 @@
+import os
+from uuid import uuid4
+from django.utils.deconstruct import deconstructible
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -24,6 +27,21 @@ class ShortLink(models.Model):
         return f'{settings.PUBLIC_URL}/share/{self.id}'
 
 
+@deconstructible
+class UploadToPathAndRename(object):
+
+    def __init__(self, path=""):
+        self.sub_path = path
+
+    def __call__(self, instance, filename):
+        ext = filename.split('.')[-1]
+        if instance.pk:
+            filename = '{}.{}'.format(instance.pk, ext)
+        else:
+            filename = '{}.{}'.format(uuid4().hex, ext)
+        return os.path.join(self.sub_path, filename)
+
+
 class Record(models.Model):
     """Model for records"""
     id = models.AutoField(primary_key=True, editable=False)
@@ -34,4 +52,5 @@ class Record(models.Model):
     book = models.ForeignKey(
         'Book', on_delete=models.CASCADE, null=False, editable=False)
     done = models.BooleanField(default=False, null=False)
-    image = models.ImageField(default=None, null=True)
+    image = models.ImageField(
+        upload_to=UploadToPathAndRename(), default=None, null=True)

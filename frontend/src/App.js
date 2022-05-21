@@ -41,9 +41,7 @@ function App() {
           severity="error"
           sx={{ width: "100%" }}
         >
-          {state.error?.response?.data?.detail ||
-            state.error?.response?.data ||
-            state.error?.message}
+          {state.error?.response?.data?.detail || state.error?.message}
         </Alert>
       </Snackbar>
     </div>
