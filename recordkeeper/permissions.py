@@ -29,7 +29,6 @@ class IsBookUserPermission(permissions.IsAuthenticated):
         if not super(permissions.IsAuthenticated, self).has_permission(request, view):
             return False
 
-        print(request.resolver_match.kwargs)
         book_pk = request.resolver_match.kwargs['book_pk']
         user_pk = request.user.id
 

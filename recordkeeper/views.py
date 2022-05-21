@@ -95,7 +95,7 @@ class RecordPagination(CursorPagination):
     ordering = "-created_at"
 
     def encode_cursor(self, cursor):
-        link = super(CursorPagination, self).encode_cursor(cursor)
+        link = super().encode_cursor(cursor)
 
         if settings.HTTPS_CURSOR:
             return link.replace("http://", "https://")

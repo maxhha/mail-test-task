@@ -27,13 +27,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv('DEBUG'))
+DEBUG = os.getenv('DEBUG') == "TRUE"
 
 ALLOWED_HOSTS = [host for host in str(os.getenv('ALLOWED_HOSTS')).split(',')]
 
 LOGIN_URL = str(os.getenv('LOGIN_URL'))
 
-PERMOMENT_SHORT_LINKS = bool(os.getenv('PERMOMENT_SHORT_LINKS'))
+PERMOMENT_SHORT_LINKS = os.getenv('PERMOMENT_SHORT_LINKS') == "TRUE"
 
 # Application definition
 
@@ -62,7 +62,7 @@ MIDDLEWARE = [
 ]
 
 PUBLIC_URL = str(os.getenv("PUBLIC_URL"))
-HTTPS_CURSOR = bool(os.getenv("HTTPS_CURSOR"))
+HTTPS_CURSOR = os.getenv("HTTPS_CURSOR") == "TRUE"
 
 CORS_ALLOW_HEADERS = default_headers + (
     'Access-Control-Allow-Headers',
