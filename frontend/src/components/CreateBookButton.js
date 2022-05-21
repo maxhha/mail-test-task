@@ -1,15 +1,13 @@
 import Button from "@mui/material/Button";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import { APIContext } from "contexts/api";
 import { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { ErrorContext } from "contexts/error";
 
 export function CreateBookButton() {
   const { api } = useContext(APIContext);
+  const { onError } = useContext(ErrorContext);
   const [state, setState] = useState({
-    snackbarOpen: false,
-    error: null,
     disabled: false,
   });
 
@@ -23,7 +21,8 @@ export function CreateBookButton() {
         history.push(`/books/${data.id}`);
       },
       (error) => {
-        setState((state) => ({ ...state, error, disabled: false }));
+        setState((state) => ({ ...state, disabled: false }));
+        onError(error);
       }
     );
   };
@@ -38,19 +37,6 @@ export function CreateBookButton() {
       >
         Создать новую книгу
       </Button>
-      <Snackbar
-        open={state.snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setState({ ...state, snackbarOpen: true })}
-      >
-        <Alert
-          onClose={() => setState({ ...state, snackbarOpen: false })}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {state.error?.message}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

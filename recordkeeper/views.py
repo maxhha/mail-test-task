@@ -97,7 +97,7 @@ class RecordPagination(CursorPagination):
     def encode_cursor(self, cursor):
         link = super().encode_cursor(cursor)
 
-        if settings.HTTPS_CURSOR:
+        if settings.USE_HTTPS:
             return link.replace("http://", "https://")
         else:
             return link

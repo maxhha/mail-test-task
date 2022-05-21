@@ -62,7 +62,8 @@ MIDDLEWARE = [
 ]
 
 PUBLIC_URL = str(os.getenv("PUBLIC_URL"))
-HTTPS_CURSOR = os.getenv("HTTPS_CURSOR") == "TRUE"
+USE_HTTPS = os.getenv("USE_HTTPS") == "TRUE"
+SECURE_SSL_REDIRECT = USE_HTTPS
 
 CORS_ALLOW_HEADERS = default_headers + (
     'Access-Control-Allow-Headers',
@@ -100,7 +101,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.CursorPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 12,
 }
 
 WSGI_APPLICATION = 'mailtesttask.wsgi.application'

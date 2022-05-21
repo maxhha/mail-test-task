@@ -36,12 +36,14 @@ class BookEventsConsumer(AsyncHttpConsumer):
             await self.send_response(status=status.HTTP_403_FORBIDDEN)
             raise StopConsumer()
 
-        await self.send_headers(headers=[
-            *self.scope["cors_headers"],
-            (b'Cache-Control', b'no-cache'),
-            (b'Content-Type', b'text/event-stream'),
-            (b'Transfer-Encoding', b'chunked'),
-        ])
+        await self.send_headers(
+            status=status.HTTP_200_OK,
+            headers=[
+                *self.scope["cors_headers"],
+                (b'Cache-Control', b'no-cache'),
+                (b'Content-Type', b'text/event-stream'),
+                (b'Transfer-Encoding', b'chunked'),
+            ])
         self.book_group_name = f'book_{self.book_pk}'
 
         await self.channel_layer.group_add(
@@ -58,8 +60,6 @@ class BookEventsConsumer(AsyncHttpConsumer):
         await self.send_body(payload.encode('utf-8'), more_body=True)
 
     async def record_updated(self, event):
-        if event['sessiodid'] == self.scope['sessionid']:
-            return
         payload = f'event: record_updated\ndata: {json.dumps(event["data"])}\n\n'
         await self.send_body(payload.encode('utf-8'), more_body=True)
 

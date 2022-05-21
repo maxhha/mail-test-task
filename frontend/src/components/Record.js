@@ -11,6 +11,7 @@ import Box from "@mui/material/Box";
 import styled from "@emotion/styled";
 import { useContext, useState } from "react";
 import { BookStorageContext } from "contexts/BookStorage";
+import { ErrorContext } from "contexts/error";
 
 const RecordCard = styled(Card)`
   width: 100%;
@@ -21,14 +22,17 @@ const RecordCard = styled(Card)`
 
 // @ts-ignore
 export function Record({ record }) {
+  const { onError } = useContext(ErrorContext);
   const { markDone, unmarkDone } = useContext(BookStorageContext);
   const [disabled, setDisabled] = useState(false);
 
   const handleMark = (mark) => () => {
     setDisabled(true);
-    mark(record.id).then(() => {
-      setDisabled(false);
-    });
+    mark(record.id)
+      .catch(onError)
+      .finally(() => {
+        setDisabled(false);
+      });
   };
 
   const opacity = record.done ? 0.4 : 1;

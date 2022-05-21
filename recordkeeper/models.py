@@ -16,7 +16,7 @@ class ShortLink(models.Model):
     """Model for references to record books made by short ids"""
     id = ShortUUIDField(length=7, primary_key=True, editable=False)
     book = models.ForeignKey(
-        'Book', on_delete=models.CASCADE, null=False, editable=False)
+        'Book', on_delete=models.CASCADE, null=False)
 
     def get_absolute_url(self):
         return f'{settings.PUBLIC_URL}/share/{self.id}'

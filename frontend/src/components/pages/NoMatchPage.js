@@ -12,7 +12,7 @@ export function NoMatchPage() {
       style={{ minHeight: "100vh" }}
     >
       <Typography variant="h1" gutterBottom component="div">
-        404
+        Упс...
       </Typography>
       <Typography variant="h2" gutterBottom component="div">
         Это приватный сервис записной книги.

@@ -6,7 +6,9 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { noop } from "utils/noop";
 import { APIContext } from "./api";
+import { ErrorContext } from "./error";
 
 /**
  * @typedef {Object} Book
@@ -29,8 +31,6 @@ import { APIContext } from "./api";
  * @property {(recordId: string) => Promise<void>} markDone
  * @property {(recordId: string) => Promise<void>} unmarkDone
  */
-/** @type {any} */
-const noop = () => {};
 
 /** @type {BookStorage} */
 const EMPTY_STORAGE = {
@@ -56,6 +56,7 @@ function updateRecordDone(records, recordId, done) {
 }
 
 export function BookStorageContextProvider({ value: { bookId }, children }) {
+  const { onError } = useContext(ErrorContext);
   const [value, setValue] = useState(EMPTY_STORAGE);
   const loading = useRef(false);
   const { api } = useContext(APIContext);
@@ -69,17 +70,12 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
 
   const updateDone = useCallback(
     async (recordId, done) => {
-      await api
-        .patch(`books/${bookId}/records/${recordId}/`, { done })
-        .then(() => {
-          setValue((value) => ({
-            ...value,
-            records: updateRecordDone(value.records, recordId, done),
-          }));
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      await api.patch(`books/${bookId}/records/${recordId}/`, { done });
+
+      setValue((value) => ({
+        ...value,
+        records: updateRecordDone(value.records, recordId, done),
+      }));
     },
     [bookId]
   );
@@ -106,6 +102,7 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
         return;
       }
       loading.current = true;
+
       setValue((value) => ({
         ...value,
         loading: true,
@@ -125,7 +122,7 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
         })
         .catch((error) => {
           if (!axios.isCancel(error)) {
-            throw error;
+            onError(error);
           }
         })
         .finally(() => {
@@ -139,7 +136,8 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
       })
       .then(async ({ data }) => {
         const next = data.next;
-        setValue({
+        setValue((value) => ({
+          ...value,
           book: { id: bookId },
           records: data.results,
           loading: false,
@@ -148,16 +146,16 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
           loadMore: next ? () => load(next) : noop,
           markDone,
           unmarkDone,
-        });
+        }));
       })
       .catch((error) => {
         if (!axios.isCancel(error)) {
-          throw error;
+          onError(error);
         }
       });
 
     return () => controller.abort();
-  }, [bookId]);
+  }, [bookId, onError]);
 
   useEffect(() => {
     if (!value.book.id) {
@@ -171,24 +169,22 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
       }
     );
 
-    // this.eventSource.addEventListener(
-    //   "error",
-    //   (error) => {
-    //     this.eventSource.close();
+    eventSource.addEventListener(
+      "error",
+      (error) => {
+        this.eventSource.close();
 
-    //     console.error(error);
-
-    //     this.changeDisabled();
-    //   },
-    //   { once: true }
-    // );
+        onError(error);
+      },
+      { once: true }
+    );
 
     eventSource.addEventListener("record_created", (event) => {
       let record;
       try {
         record = JSON.parse(event.data);
       } catch (error) {
-        console.error(error);
+        onError(error);
         return;
       }
       setValue((value) => ({
@@ -202,7 +198,7 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
       try {
         record = JSON.parse(event.data);
       } catch (error) {
-        console.error(error);
+        onError(error);
         return;
       }
 
@@ -219,9 +215,13 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
     });
 
     return () => eventSource.close();
-  }, [value.book.id]);
+  }, [value.book.id, onError]);
 
-  return <Provider value={value}>{children}</Provider>;
+  return (
+    <Provider value={{ ...value, create, markDone, unmarkDone }}>
+      {children}
+    </Provider>
+  );
 }
 
 // @ts-ignore

@@ -7,15 +7,15 @@ import DialogActions from "@mui/material/DialogActions";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { APIContext } from "contexts/api";
+import { ErrorContext } from "contexts/error";
 
 export function CreateShortLinkButton({ disabled, bookId }) {
   const { api } = useContext(APIContext);
+  const { onError } = useContext(ErrorContext);
   const [state, setState] = useState({
     open: false,
     link: "",
     loading: false,
-    snackbarOpen: false,
-    error: null,
     copySnackbarOpen: false,
   });
 
@@ -34,10 +34,9 @@ export function CreateShortLinkButton({ disabled, bookId }) {
       (error) => {
         setState((state) => ({
           ...state,
-          error,
-          snackbarOpen: true,
           loading: false,
         }));
+        onError(error);
       }
     );
   };
@@ -48,21 +47,12 @@ export function CreateShortLinkButton({ disabled, bookId }) {
         "text/plain": new Blob([state.link], { type: "text/plain" }),
       }),
     ];
-    navigator.clipboard.write(data).then(
-      () => {
-        setState((state) => ({
-          ...state,
-          copySnackbarOpen: true,
-        }));
-      },
-      (error) => {
-        setState((state) => ({
-          ...state,
-          error,
-          snackbarOpen: true,
-        }));
-      }
-    );
+    navigator.clipboard.write(data).then(() => {
+      setState((state) => ({
+        ...state,
+        copySnackbarOpen: true,
+      }));
+    }, onError);
   };
 
   const buttonDisabled = disabled || state.loading;
@@ -102,19 +92,6 @@ export function CreateShortLinkButton({ disabled, bookId }) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar
-        open={state.snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setState({ ...state, snackbarOpen: false })}
-      >
-        <Alert
-          onClose={() => setState({ ...state, snackbarOpen: false })}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {state.error?.message}
-        </Alert>
-      </Snackbar>
       <Snackbar
         open={state.copySnackbarOpen}
         autoHideDuration={3000}

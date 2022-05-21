@@ -1,19 +1,17 @@
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import TextField from "@mui/material/TextField";
 import DialogActions from "@mui/material/DialogActions";
 import Grid from "@mui/material/Grid";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { ErrorContext } from "contexts/error";
 
 export function CreateRecordButton({ disabled, create }) {
+  const { onError } = useContext(ErrorContext);
   const [state, setState] = useState({
     createDialogOpen: false,
-    snackbarOpen: false,
-    error: null,
     loading: false,
   });
 
@@ -40,10 +38,9 @@ export function CreateRecordButton({ disabled, create }) {
       (error) => {
         setState((state) => ({
           ...state,
-          snackbarOpen: true,
-          error,
           loading: false,
         }));
+        onError(error);
       }
     );
   };
@@ -91,11 +88,12 @@ export function CreateRecordButton({ disabled, create }) {
               <Grid sm={6} item>
                 <TextField
                   label="Картинка"
-                  // @ts-ignore
-                  accept="image/*"
                   type="file"
                   name="image"
                   fullWidth
+                  inputProps={{
+                    accept: "image/*",
+                  }}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -113,19 +111,6 @@ export function CreateRecordButton({ disabled, create }) {
           </DialogActions>
         </form>
       </Dialog>
-      <Snackbar
-        open={state.snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setState({ ...state, snackbarOpen: false })}
-      >
-        <Alert
-          onClose={() => setState({ ...state, snackbarOpen: false })}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {state.error?.message}
-        </Alert>
-      </Snackbar>
     </>
   );
 }
