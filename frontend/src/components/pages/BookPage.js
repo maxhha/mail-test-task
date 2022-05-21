@@ -25,12 +25,12 @@ function BookPageInner() {
   const copyLinkDisabled = loading;
   const loadMoreDisabled = loading;
 
-  if (loading) {
+  if (loading && !book.id) {
     return <LinearProgress />;
   }
 
   return (
-    <Container>
+    <Container sx={{ pb: 10 }}>
       <Box>
         <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
           <CreateRecordButton disabled={createRecordDisabled} create={create} />
@@ -53,7 +53,7 @@ function BookPageInner() {
         </Grid>
       </Box>
       {hasMore && (
-        <Box mt={4} mb={10}>
+        <Box mt={4}>
           <Button
             variant="outlined"
             disabled={loadMoreDisabled}
