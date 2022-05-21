@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useHistory } from "react-router-dom";
 import { noop } from "utils/noop";
 import { APIContext } from "./api";
 import { ErrorContext } from "./error";
@@ -13,6 +14,7 @@ import { ErrorContext } from "./error";
 /**
  * @typedef {Object} Book
  * @property {string} id
+ * @property {boolean} is_owner
  */
 
 /**
@@ -34,7 +36,7 @@ import { ErrorContext } from "./error";
 
 /** @type {BookStorage} */
 const EMPTY_STORAGE = {
-  book: { id: "" },
+  book: { id: "", is_owner: false },
   records: [],
   loading: true,
   hasMore: false,
@@ -60,6 +62,7 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
   const [value, setValue] = useState(EMPTY_STORAGE);
   const loading = useRef(false);
   const { api } = useContext(APIContext);
+  const history = useHistory();
 
   const create = useCallback(
     async (record) => {
@@ -95,7 +98,12 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
   );
 
   useEffect(() => {
+    if (value !== EMPTY_STORAGE) {
+      setValue(EMPTY_STORAGE);
+    }
+
     const controller = new AbortController();
+    const signal = controller.signal;
 
     const load = (url) => {
       if (loading.current) {
@@ -109,7 +117,7 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
       }));
 
       api
-        .get(url, { signal: controller.signal })
+        .get(url, { signal })
         .then(async ({ data }) => {
           const next = data.next;
           setValue((value) => ({
@@ -130,29 +138,36 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
         });
     };
 
-    api
-      .get(`/books/${bookId}/records/?page_size=12`, {
-        signal: controller.signal,
-      })
-      .then(async ({ data }) => {
-        const next = data.next;
-        setValue((value) => ({
-          ...value,
-          book: { id: bookId },
-          records: data.results,
-          loading: false,
-          hasMore: next !== null,
-          create,
-          loadMore: next ? () => load(next) : noop,
-          markDone,
-          unmarkDone,
-        }));
-      })
-      .catch((error) => {
-        if (!axios.isCancel(error)) {
-          onError(error);
-        }
-      });
+    (async () => {
+      const { data: book } = await api.get(`/books/${bookId}/`, { signal });
+
+      setValue((value) => ({
+        ...value,
+        book,
+      }));
+
+      const {
+        data: { next, results },
+      } = await api.get(`/books/${bookId}/records/?page_size=12`, { signal });
+
+      setValue((value) => ({
+        ...value,
+        records: results,
+        loading: false,
+        hasMore: next !== null,
+        loadMore: next ? () => load(next) : noop,
+      }));
+    })().catch((error) => {
+      if (axios.isCancel(error)) {
+        return;
+      }
+
+      if (error.response?.status === 404) {
+        history.replace("/");
+      }
+
+      onError(error);
+    });
 
     return () => controller.abort();
   }, [bookId, onError]);
@@ -217,11 +232,11 @@ export function BookStorageContextProvider({ value: { bookId }, children }) {
     return () => eventSource.close();
   }, [value.book.id, onError]);
 
-  return (
-    <Provider value={{ ...value, create, markDone, unmarkDone }}>
-      {children}
-    </Provider>
-  );
+  const passedValue = value.book.id
+    ? { ...value, create, markDone, unmarkDone }
+    : value;
+
+  return <Provider value={passedValue}>{children}</Provider>;
 }
 
 // @ts-ignore

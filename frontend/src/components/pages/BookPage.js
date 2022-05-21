@@ -10,35 +10,36 @@ import {
   BookStorageContext,
   BookStorageContextProvider,
 } from "contexts/BookStorage";
-import { useCallback, useContext, useState } from "react";
+import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { CreateRecordButton } from "components/CreateRecordButton";
 import { CreateBookButton } from "components/CreateBookButton";
 import { CreateShortLinkButton } from "components/CreateShortLinkButton";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import { ErrorContext } from "contexts/error";
+import LinearProgress from "@mui/material/LinearProgress";
 
 function BookPageInner() {
-  const {
-    loading,
-    records,
-    loadMore,
-    hasMore,
-    create,
-    book: { id: bookId },
-  } = useContext(BookStorageContext);
+  const { loading, records, loadMore, hasMore, create, book } =
+    useContext(BookStorageContext);
 
   const createRecordDisabled = loading;
   const copyLinkDisabled = loading;
   const loadMoreDisabled = loading;
+
+  if (loading) {
+    return <LinearProgress />;
+  }
 
   return (
     <Container>
       <Box>
         <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
           <CreateRecordButton disabled={createRecordDisabled} create={create} />
-          <CreateShortLinkButton disabled={copyLinkDisabled} bookId={bookId} />
+          {book.is_owner && (
+            <CreateShortLinkButton
+              disabled={copyLinkDisabled}
+              bookId={book.id}
+            />
+          )}
           <CreateBookButton />
         </Stack>
       </Box>
@@ -69,35 +70,10 @@ function BookPageInner() {
 export function BookPage() {
   // @ts-ignore
   const { id } = useParams();
-  const [state, setState] = useState({
-    error: null,
-    snackbarOpen: false,
-  });
-
-  const handleError = useCallback((error) => {
-    setState({ error, snackbarOpen: true });
-  }, []);
 
   return (
-    <>
-      <ErrorContext.Provider value={{ onError: handleError }}>
-        <BookStorageContextProvider value={{ bookId: id }}>
-          <BookPageInner />
-        </BookStorageContextProvider>
-      </ErrorContext.Provider>
-      <Snackbar
-        open={state.snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setState({ ...state, snackbarOpen: false })}
-      >
-        <Alert
-          onClose={() => setState({ ...state, snackbarOpen: false })}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {state.error?.response?.data || state.error?.message}
-        </Alert>
-      </Snackbar>
-    </>
+    <BookStorageContextProvider value={{ bookId: id }}>
+      <BookPageInner />
+    </BookStorageContextProvider>
   );
 }

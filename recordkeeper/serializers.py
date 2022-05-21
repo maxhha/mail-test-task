@@ -4,13 +4,18 @@ from recordkeeper.models import Book, Record
 
 
 class BookSerializer(serializers.ModelSerializer):
+    is_owner = serializers.SerializerMethodField()
+
     class Meta:
         model = Book
-        fields = ["id"]
+        fields = ["id", "is_owner"]
+
+    def get_is_owner(self, obj):
+        return self.context['request'].user == obj.owner
 
 
 class RecordSerializer(serializers.ModelSerializer):
-    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
+    # book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
 
     class Meta:
         model = Record

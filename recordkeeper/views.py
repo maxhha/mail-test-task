@@ -13,7 +13,7 @@ from rest_framework.pagination import CursorPagination
 from mailtesttask.settings import MEDIA_ROOT, FALLBACK_MEDIA_PATH
 
 from recordkeeper.models import Book, ShortLink, Record
-from recordkeeper.permissions import IsBookUserPermission
+from recordkeeper.permissions import IsBookUserPermission, isBookOwnerPermission
 from recordkeeper.serializers import BookSerializer, RecordSerializer
 from recordkeeper.utils import random_string
 from django.db import transaction
@@ -56,12 +56,12 @@ def shortlink_share(request, pk):
         if settings.PERMOMENT_SHORT_LINKS:
             short_link.delete()
 
-    serializer = BookSerializer(short_link.book)
+    serializer = BookSerializer(short_link.book, context={"request": request})
     return JsonResponse(serializer.data, safe=False, status=response_status)
 
 
 @api_view(['POST'])
-@permission_classes([IsBookUserPermission])
+@permission_classes([isBookOwnerPermission])
 def book_share(request, book_pk):
     """
     Creates shortlink to a book
@@ -80,14 +80,24 @@ class BookViewSet(viewsets.ViewSet):
     def list(self, request):
         books = Book.objects.filter(users=request.user)
 
-        serializer = BookSerializer(books, many=True)
+        serializer = BookSerializer(
+            books, many=True, context={'request': request})
         return JsonResponse(serializer.data, safe=False)
 
     def create(self, request):
-        book = Book.objects.create()
+        book = Book.objects.create(owner=request.user)
         book.users.add(request.user)
 
-        serializer = BookSerializer(book)
+        serializer = BookSerializer(book, context={'request': request})
+        return JsonResponse(serializer.data, safe=False)
+
+    def retrieve(self, request, pk=None):
+        try:
+            book = Book.objects.get(pk=pk, users=request.user)
+        except Book.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BookSerializer(book, context={'request': request})
         return JsonResponse(serializer.data, safe=False)
 
 
@@ -119,17 +129,15 @@ class RecordViewSet(viewsets.ModelViewSet):
         if 'book' in request.data and request.data['book'] != book_pk:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        data = request.data.copy()
-        data['book'] = book_pk
-
-        serializer = self.get_serializer(data=data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        self.perform_create(serializer, book_pk)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def perform_create(self, serializer):
-        record = serializer.save()
+    def perform_create(self, serializer, book_pk):
+        book = Book.objects.get(pk=book_pk)
+        record = serializer.save(book=book)
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(

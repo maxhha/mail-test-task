@@ -10,6 +10,8 @@ class Book(models.Model):
     """Model for record books"""
     id = models.AutoField(primary_key=True, editable=False)
     users = models.ManyToManyField(User)
+    owner = models.ForeignKey(
+        User, related_name="owner", on_delete=models.SET_NULL, null=True)
 
 
 class ShortLink(models.Model):

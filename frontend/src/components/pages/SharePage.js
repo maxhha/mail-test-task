@@ -1,15 +1,15 @@
+import LinearProgress from "@mui/material/LinearProgress";
 import { APIContext } from "contexts/api";
-import { useContext, useEffect, useRef, useState } from "react";
+import { ErrorContext } from "contexts/error";
+import { useContext, useEffect, useRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
 export function SharePage() {
   // @ts-ignore
   const { id } = useParams();
   const { api } = useContext(APIContext);
+  const { onError } = useContext(ErrorContext);
   const history = useHistory();
-  const [state, setState] = useState({
-    error: null,
-  });
   const loading = useRef(false);
 
   useEffect(() => {
@@ -22,13 +22,12 @@ export function SharePage() {
       ({ data }) => {
         history.replace(`/books/${data.id}`);
       },
-      (error) => setState({ error })
+      (error) => {
+        history.replace(`/`);
+        onError(error);
+      }
     );
   }, []);
 
-  if (!state.error) {
-    return null;
-  }
-
-  return <code>{state.error.message}</code>;
+  return <LinearProgress />;
 }
