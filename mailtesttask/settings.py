@@ -63,7 +63,6 @@ MIDDLEWARE = [
 
 PUBLIC_URL = str(os.getenv("PUBLIC_URL"))
 USE_HTTPS = os.getenv("USE_HTTPS") == "TRUE"
-SECURE_SSL_REDIRECT = USE_HTTPS
 
 CORS_ALLOW_HEADERS = default_headers + (
     'Access-Control-Allow-Headers',
